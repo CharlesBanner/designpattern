@@ -1,5 +1,8 @@
 package com.charles.designpattern.innerClassSingleton;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+
 /**
  * @author CharlesBanner
  * @classname InnerClassSingletonTest
@@ -14,7 +17,8 @@ package com.charles.designpattern.innerClassSingleton;
  */
 public class InnerClassSingletonTest {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+        /*多线程*/
         new Thread(()->{
             InnerClassSingleton instance1 = InnerClassSingleton.getInstance();
             System.out.println(instance1);
@@ -23,6 +27,12 @@ public class InnerClassSingletonTest {
             InnerClassSingleton instance2 = InnerClassSingleton.getInstance();
             System.out.println(instance2);
         }).start();
+        /*反射*/
+        Constructor<InnerClassSingleton> declaredConstructor = InnerClassSingleton.class.getDeclaredConstructor();
+        declaredConstructor.setAccessible(true);
+        InnerClassSingleton innerClassSingleton = declaredConstructor.newInstance();
+        InnerClassSingleton instance = InnerClassSingleton.getInstance();
+        System.out.println(innerClassSingleton == instance);
 
     }
 
@@ -34,6 +44,9 @@ class InnerClassSingleton{
     }
 
     private InnerClassSingleton() {
+        if (InnerClassHolder.INNERCLASSSINGLETON != null){
+            throw new RuntimeException("单例模式不允许多个实例");
+        }
     }
 
     public static InnerClassSingleton getInstance() {

@@ -2,6 +2,8 @@ package com.charles.designpattern.lazysingleton;
 
 import org.jetbrains.annotations.Contract;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -14,7 +16,7 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class LazySingletonTest {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
         new Thread(() -> {
             LazySingleton instance = LazySingleton.getInstance();
             LazySingleton instance1 = LazySingleton.getInstance();
@@ -26,6 +28,12 @@ public class LazySingletonTest {
             LazySingleton instance1 = LazySingleton.getInstance();
             System.out.println(instance == instance1);
         }).start();
+
+        /*反射测试*/
+        Constructor<LazySingleton> declaredConstructor = LazySingleton.class.getDeclaredConstructor();
+        LazySingleton lazySingleton = declaredConstructor.newInstance();
+        LazySingleton instance = LazySingleton.getInstance();
+        System.out.println(lazySingleton == instance);
     }
 
 }
@@ -41,7 +49,10 @@ class LazySingleton {
      * @date 2020/9/22 0022 下午 11:49
      * @author CharlesBanner
      */
-    public LazySingleton() {
+    private LazySingleton() {
+        if (instance != null){
+            throw new RuntimeException("单例模式不允许多个实例");
+        }
     }
 
     public static LazySingleton getInstance() {

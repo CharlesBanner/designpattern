@@ -23,9 +23,10 @@ public class HungrySingletonTest {
 }
 class HungrySingleton {
 
-    private String name;
-
     private static final HungrySingleton INSTANCE = new HungrySingleton();
+
+    private HungrySingleton() {
+    }
 
     public static HungrySingleton getInstance() {
         return INSTANCE;
