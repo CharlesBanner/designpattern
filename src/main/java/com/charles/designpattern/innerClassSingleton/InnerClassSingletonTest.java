@@ -1,5 +1,6 @@
 package com.charles.designpattern.innerClassSingleton;
 
+import java.io.*;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
@@ -17,7 +18,7 @@ import java.lang.reflect.InvocationTargetException;
  */
 public class InnerClassSingletonTest {
 
-    public static void main(String[] args) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+    public static void main(String[] args) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException, IOException, ClassNotFoundException {
         /*多线程*/
         new Thread(()->{
             InnerClassSingleton instance1 = InnerClassSingleton.getInstance();
@@ -28,16 +29,30 @@ public class InnerClassSingletonTest {
             System.out.println(instance2);
         }).start();
         /*反射*/
-        Constructor<InnerClassSingleton> declaredConstructor = InnerClassSingleton.class.getDeclaredConstructor();
+        /*Constructor<InnerClassSingleton> declaredConstructor = InnerClassSingleton.class.getDeclaredConstructor();
         declaredConstructor.setAccessible(true);
         InnerClassSingleton innerClassSingleton = declaredConstructor.newInstance();
         InnerClassSingleton instance = InnerClassSingleton.getInstance();
-        System.out.println(innerClassSingleton == instance);
+        System.out.println(innerClassSingleton == instance);*/
+        /*序列化*/
+        InnerClassSingleton instance1 = InnerClassSingleton.getInstance();
+        ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("testSerializable"));
+        oos.writeObject(instance1);
+        oos.close();
 
+        ObjectInputStream ois = new ObjectInputStream(new FileInputStream("testSerializable"));
+        InnerClassSingleton object = (InnerClassSingleton)ois.readObject();
+        System.out.println(object == instance1);
     }
 
 }
-class InnerClassSingleton{
+class InnerClassSingleton implements Serializable {
+
+    private static final long serialVersionUID = 6104597516250657737L;
+
+    Object readResolve() throws ObjectStreamException{
+        return InnerClassHolder.INNERCLASSSINGLETON;
+    }
 
     private static class InnerClassHolder{
         private static final InnerClassSingleton INNERCLASSSINGLETON = new InnerClassSingleton();
